@@ -13,6 +13,11 @@ use App\Models\BookedTicket;
 use App\Rules\FileTypeValidate;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+// use Xendit\Xendit;
+use Xendit\Configuration;
+use Xendit\Invoice\InvoiceApi;
+use Symfony\Component\HttpFoundation\Response;
+
 
 class PaymentController extends Controller
 {
@@ -25,7 +30,7 @@ class PaymentController extends Controller
     {
         $pnr_number = session()->get('pnr_number');
         $bookedTicket = BookedTicket::where('pnr_number', $pnr_number)->first();
-        if(!$bookedTicket){
+        if (!$bookedTicket) {
             $notify[] = 'Please Try again.';
             return redirect()->route('ticket')->withNotify($notify);
         }
@@ -88,7 +93,7 @@ class PaymentController extends Controller
     public function depositPreview()
     {
         $track = session()->get('Track');
-        $data = Deposit::where('trx', $track)->where('status',0)->orderBy('id', 'DESC')->firstOrFail();
+        $data = Deposit::where('trx', $track)->where('status', 0)->orderBy('id', 'DESC')->firstOrFail();
         $pageTitle = 'Payment Preview';
         return view($this->activeTemplate . 'user.payment.preview', compact('data', 'pageTitle'));
     }
@@ -97,7 +102,7 @@ class PaymentController extends Controller
     public function depositConfirm()
     {
         $track = session()->get('Track');
-        $deposit = Deposit::where('trx', $track)->where('status',0)->orderBy('id', 'DESC')->with('gateway')->firstOrFail();
+        $deposit = Deposit::where('trx', $track)->where('status', 0)->orderBy('id', 'DESC')->with('gateway')->firstOrFail();
 
         if ($deposit->method_code >= 1000) {
             $this->userDataUpdate($deposit);
@@ -122,15 +127,106 @@ class PaymentController extends Controller
         }
 
         // for Stripe V3
-        if(@$data->session){
+        if (@$data->session) {
             $deposit->btc_wallet = $data->session->id;
             $deposit->save();
         }
 
         $pageTitle = 'Payment Confirm';
-        return view($this->activeTemplate . $data->view, compact('data', 'pageTitle', 'deposit'));
+
+        // Configuration::setApiKey('xnd_development_lhenR2EDSNWhKwhTIzw6kmEbZTcTlskQ5eg70mYY0p2NfcvzliuwUBd8O');
+        Configuration::setXenditKey('xnd_development_h6dHQg7Gy1OIHirYumyL4gBjt0xa36jgxYN20FK22ur5GQCmHsokPXZuBcId');
+        $apiInstance = new InvoiceApi();
+
+        $create_invoice_request = new \Xendit\Invoice\CreateInvoiceRequest([
+            'external_id' => (string) $deposit->id,
+            'payer_email' => auth()->user()->email,
+            'description' => 'Payment for booking',
+            'amount' => $deposit->final_amo,
+            'invoice_duration' => 86400,  // 1 day in seconds
+            'currency' => 'IDR',
+            'should_send_email' => true,
+            'success_redirect_url' => url('success'),
+            'failure_redirect_url' => url('failure'),
+        ]);
+
+        $result = $apiInstance->createInvoice($create_invoice_request);
+        // $payment->update(['link' => $result->getInvoiceUrl()]);
+
+        // Simpan URL Invoice Xendit
+        // $invoice_url = $result['invoice_url'];
+        $invoice_url = $result->getInvoiceUrl();
+
+        // Kirim URL ke view Blade
+        // return view('your_view', ['invoice_url' => $invoice_url, 'data' => $deposit]);
+
+        return view($this->activeTemplate . $data->view, compact('data', 'pageTitle', 'deposit', 'invoice_url'));
     }
 
+    public function webhook(Request $request, Response $response)
+    {
+        // Ini akan menjadi Token Verifikasi Callback Anda yang dapat Anda peroleh dari dasbor.
+        // Pastikan untuk menjaga kerahasiaan token ini dan tidak mengungkapkannya kepada siapa pun.
+        // Token ini akan digunakan untuk melakukan verfikasi pesan callback bahwa pengirim callback tersebut adalah Xendit
+        $xenditXCallbackToken = 'mFSgzlG7Mf8JB15iqXqSZd7lgEiqg8Dl654z0TSq2zdMRLuk';
+        // var_dump($xenditXCallbackToken);
+        // die;
+        // Bagian ini untuk mendapatkan Token callback dari permintaan header, 
+        // yang kemudian akan dibandingkan dengan token verifikasi callback Xendit
+        $reqHeaders = getallheaders();
+        $xIncomingCallbackTokenHeader = isset($reqHeaders['x-callback-token']) ? $reqHeaders['x-callback-token'] : "";
+        //var_dump($xIncomingCallbackTokenHeader);
+        //var_dump($reqHeaders);
+        //   die;
+        // Untuk memastikan permintaan datang dari Xendit
+        // Anda harus membandingkan token yang masuk sama dengan token verifikasi callback Anda
+        // Ini untuk memastikan permintaan datang dari Xendit dan bukan dari pihak ketiga lainnya.
+        //if ($xIncomingCallbackTokenHeader === $xenditXCallbackToken) {
+        // Permintaan masuk diverifikasi berasal dari Xendit
+
+        // Baris ini untuk mendapatkan semua input pesan dalam format JSON teks mentah
+        $rawRequestInput = file_get_contents("php://input");
+        // Baris ini melakukan format input mentah menjadi array asosiatif
+        $arrRequestInput = json_decode($rawRequestInput, true);
+        // var_dump($arrRequestInput);
+
+        $_id = $arrRequestInput['id'];
+        $_externalId = $arrRequestInput['external_id'];
+        $_userId = $arrRequestInput['payer_email'];
+        $_status = $arrRequestInput['status'];
+        $_paidAmount = $arrRequestInput['paid_amount'];
+        $_paidAt = $arrRequestInput['paid_at'];
+        $_paymentChannel = $arrRequestInput['payment_channel'];
+        $_paymentDestination = $arrRequestInput['payment_destination'];
+
+        // Kamu bisa menggunakan array objek diatas sebagai informasi callback yang dapat digunaka untuk melakukan pengecekan atau aktivas tertentu di aplikasi atau sistem kamu.
+
+        //} else {
+        // Permintaan bukan dari Xendit, tolak dan buang pesan dengan HTTP status 403
+        //  http_response_code(403);
+        //}
+        // $data = $request->getParsedBody();
+
+        //    $status = $data['status'];
+        //  $paymentId = $data['payment_id'];
+        $user = User::where('email', $arrRequestInput['payer_email'])->first();
+        $book = BookedTicket::where('id', $arrRequestInput['external_id'])->first();
+        // var_dump($book);
+        $book->status = 1;
+        $book->save();
+        // var_dump($book->save());
+        //die;
+        $payment = Deposit::where('booked_ticket_id', $book->booked_ticket_id)->first();
+        var_dump($payment);
+        if ($payment) {
+            $payment->status = 1;
+            $payment->save();
+        }
+        $responseData = ['status' => 'success', 'message' => 'Payment Success'];
+        // $response->getBody()->write(json_encode($responseData));
+        // return $response->withHeader('Content-Type', 'application/json');
+        return json_encode($responseData);
+    }
 
     public static function userDataUpdate($trx)
     {
@@ -147,7 +243,7 @@ class PaymentController extends Controller
 
             $adminNotification = new AdminNotification();
             $adminNotification->user_id = $user->id;
-            $adminNotification->title = 'Payment successful via '.$data->gatewayCurrency()->name;
+            $adminNotification->title = 'Payment successful via ' . $data->gatewayCurrency()->name;
             $adminNotification->click_url = urlPath('admin.vehicle.ticket.booked');
             $adminNotification->save();
 
@@ -160,13 +256,12 @@ class PaymentController extends Controller
                 'currency' => $general->cur_text,
                 'rate' => showAmount($data->rate),
                 'trx' => $data->trx,
-                'journey_date' => showDateTime($bookedTicket->date_of_journey , 'd m, Y'),
-                'seats' => implode(',',$bookedTicket->seats),
+                'journey_date' => showDateTime($bookedTicket->date_of_journey, 'd m, Y'),
+                'seats' => implode(',', $bookedTicket->seats),
                 'total_seats' => sizeof($bookedTicket->seats),
                 'source' => $bookedTicket->pickup->name,
                 'destination' => $bookedTicket->drop->name
             ]);
-
         }
     }
 
@@ -205,7 +300,7 @@ class PaymentController extends Controller
                 $rules[$key] = [$custom->validation];
                 if ($custom->type == 'file') {
                     array_push($rules[$key], 'image');
-                    array_push($rules[$key], new FileTypeValidate(['jpg','jpeg','png']));
+                    array_push($rules[$key], new FileTypeValidate(['jpg', 'jpeg', 'png']));
                     array_push($rules[$key], 'max:2048');
 
                     array_push($verifyImages, $key);
@@ -222,8 +317,8 @@ class PaymentController extends Controller
         $this->validate($request, $rules);
 
 
-        $directory = date("Y")."/".date("m")."/".date("d");
-        $path = imagePath()['verify']['deposit']['path'].'/'.$directory;
+        $directory = date("Y") . "/" . date("m") . "/" . date("d");
+        $path = imagePath()['verify']['deposit']['path'] . '/' . $directory;
         $collection = collect($request);
         $reqField = [];
         if ($params != null) {
@@ -236,7 +331,7 @@ class PaymentController extends Controller
                             if ($request->hasFile($inKey)) {
                                 try {
                                     $reqField[$inKey] = [
-                                        'field_name' => $directory.'/'.uploadImage($request[$inKey], $path),
+                                        'field_name' => $directory . '/' . uploadImage($request[$inKey], $path),
                                         'type' => $inVal->type,
                                     ];
                                 } catch (\Exception $exp) {
@@ -267,8 +362,8 @@ class PaymentController extends Controller
 
         $adminNotification = new AdminNotification();
         $adminNotification->user_id = $data->user->id;
-        $adminNotification->title = 'Payment request from '.$data->user->username;
-        $adminNotification->click_url = urlPath('admin.deposit.details',$data->id);
+        $adminNotification->title = 'Payment request from ' . $data->user->username;
+        $adminNotification->click_url = urlPath('admin.deposit.details', $data->id);
         $adminNotification->save();
 
         $general = GeneralSetting::first();
@@ -281,8 +376,8 @@ class PaymentController extends Controller
             'currency' => $general->cur_text,
             'rate' => showAmount($data->rate),
             'trx' => $data->trx,
-            'journey_date' => showDateTime($bookedTicket->date_of_journey , 'd m, Y'),
-            'seats' => implode(',',$bookedTicket->seats),
+            'journey_date' => showDateTime($bookedTicket->date_of_journey, 'd m, Y'),
+            'seats' => implode(',', $bookedTicket->seats),
             'total_seats' => sizeof($bookedTicket->seats),
             'source' => $bookedTicket->pickup->name,
             'destination' => $bookedTicket->drop->name
@@ -291,5 +386,4 @@ class PaymentController extends Controller
         $notify[] = ['success', 'Your payment request has been taken.'];
         return redirect()->route('user.ticket.history')->withNotify($notify);
     }
-
 }

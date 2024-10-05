@@ -14,7 +14,8 @@ use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 
 
-function sidebarVariation(){
+function sidebarVariation()
+{
 
     /// for sidebar
     $variation['sidebar'] = 'bg_img';
@@ -29,12 +30,11 @@ function sidebarVariation(){
     $variation['opacity'] = 'overlay--opacity-8'; // 1-10
 
     return $variation;
-
 }
 
 function systemDetails()
 {
-    $system['name'] = 'ViserBus';
+    $system['name'] = 'Puspa Jaya';
     $system['version'] = '1.0';
     return $system;
 }
@@ -121,7 +121,8 @@ function uploadImage($file, $location, $size = null, $old = null, $thumb = null)
     return $filename;
 }
 
-function uploadFile($file, $location, $size = null, $old = null){
+function uploadFile($file, $location, $size = null, $old = null)
+{
     $path = makeDirectory($location);
     if (!$path) throw new Exception('File could not been created.');
 
@@ -130,7 +131,7 @@ function uploadFile($file, $location, $size = null, $old = null){
     }
 
     $filename = uniqid() . time() . '.' . $file->getClientOriginalExtension();
-    $file->move($location,$filename);
+    $file->move($location, $filename);
     return $filename;
 }
 
@@ -193,13 +194,13 @@ function loadTawkto()
 
 function loadFbComment()
 {
-    $comment = Extension::where('act', 'fb-comment')->where('status',1)->first();
+    $comment = Extension::where('act', 'fb-comment')->where('status', 1)->first();
     return  $comment ? $comment->generateScript() : '';
 }
 
 function loadCustomCaptcha($height = 46, $width = '100%', $bgcolor = '#003', $textcolor = '#abc')
 {
-    $textcolor = '#'.GeneralSetting::first()->base_color;
+    $textcolor = '#' . GeneralSetting::first()->base_color;
     $captcha = Extension::where('act', 'custom-captcha')->where('status', 1)->first();
     if (!$captcha) {
         return 0;
@@ -245,19 +246,21 @@ function getAmount($amount, $length = 2)
     return $amount + 0;
 }
 
-function seatLayoutToArray($layoutString) {
-    return $seat_layout = explode('x', str_replace(' ','', $layoutString));
+function seatLayoutToArray($layoutString)
+{
+    return $seat_layout = explode('x', str_replace(' ', '', $layoutString));
 }
 
-function showAmount($amount, $decimal = 2, $separate = true, $exceptZeros = false){
+function showAmount($amount, $decimal = 2, $separate = true, $exceptZeros = false)
+{
     $separator = '';
-    if($separate){
+    if ($separate) {
         $separator = ',';
     }
     $printAmount = number_format($amount, $decimal, '.', $separator);
-    if($exceptZeros){
-    $exp = explode('.', $printAmount);
-        if($exp[1]*1 == 0){
+    if ($exceptZeros) {
+        $exp = explode('.', $printAmount);
+        if ($exp[1] * 1 == 0) {
             $printAmount = $exp[0];
         }
     }
@@ -330,10 +333,10 @@ function getIpInfo()
     $ip = $_SERVER["REMOTE_ADDR"];
 
     //Deep detect ip
-    if (filter_var(@$_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP)){
+    if (filter_var(@$_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP)) {
         $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
     }
-    if (filter_var(@$_SERVER['HTTP_CLIENT_IP'], FILTER_VALIDATE_IP)){
+    if (filter_var(@$_SERVER['HTTP_CLIENT_IP'], FILTER_VALIDATE_IP)) {
         $ip = $_SERVER['HTTP_CLIENT_IP'];
     }
 
@@ -362,7 +365,8 @@ function getIpInfo()
 }
 
 //moveable
-function osBrowser(){
+function osBrowser()
+{
     $userAgent = $_SERVER['HTTP_USER_AGENT'];
     $osPlatform = "Unknown OS Platform";
     $osArray = array(
@@ -463,14 +467,14 @@ function getPageSections($arr = false)
 }
 
 
-function getImage($image,$size = null)
+function getImage($image, $size = null)
 {
     $clean = '';
     if (file_exists($image) && is_file($image)) {
         return asset($image) . $clean;
     }
     if ($size) {
-        return route('placeholder.image',$size);
+        return route('placeholder.image', $size);
     }
     return asset('assets/images/default.png');
 }
@@ -497,7 +501,7 @@ function sendSms($user, $type, $shortCodes = [])
         }
         $message = shortCodeReplacer("{{message}}", $template, $general->sms_api);
         $message = shortCodeReplacer("{{name}}", $user->username, $message);
-        $sendSms->$gateway($user->mobile,$general->sitename,$message,$general->sms_config);
+        $sendSms->$gateway($user->mobile, $general->sitename, $message, $general->sms_config);
     }
 }
 
@@ -528,7 +532,7 @@ function sendEmail($user, $type = null, $shortCodes = [])
     $emailLog = new EmailLog();
     $emailLog->user_id = $user->id;
     $emailLog->mail_sender = $config->name;
-    $emailLog->email_from = $general->sitename.' '.$general->email_from;
+    $emailLog->email_from = $general->sitename . ' ' . $general->email_from;
     $emailLog->email_to = $user->email;
     $emailLog->subject = $emailTemplate->subj;
     $emailLog->message = $message;
@@ -536,18 +540,18 @@ function sendEmail($user, $type = null, $shortCodes = [])
 
 
     if ($config->name == 'php') {
-        sendPhpMail($user->email, $user->username,$emailTemplate->subj, $message, $general);
+        sendPhpMail($user->email, $user->username, $emailTemplate->subj, $message, $general);
     } else if ($config->name == 'smtp') {
-        sendSmtpMail($config, $user->email, $user->username, $emailTemplate->subj, $message,$general);
+        sendSmtpMail($config, $user->email, $user->username, $emailTemplate->subj, $message, $general);
     } else if ($config->name == 'sendgrid') {
-        sendSendGridMail($config, $user->email, $user->username, $emailTemplate->subj, $message,$general);
+        sendSendGridMail($config, $user->email, $user->username, $emailTemplate->subj, $message, $general);
     } else if ($config->name == 'mailjet') {
-        sendMailjetMail($config, $user->email, $user->username, $emailTemplate->subj, $message,$general);
+        sendMailjetMail($config, $user->email, $user->username, $emailTemplate->subj, $message, $general);
     }
 }
 
 
-function sendPhpMail($receiver_email, $receiver_name, $subject, $message,$general)
+function sendPhpMail($receiver_email, $receiver_name, $subject, $message, $general)
 {
     $headers = "From: $general->sitename <$general->email_from> \r\n";
     $headers .= "Reply-To: $general->sitename <$general->email_from> \r\n";
@@ -557,7 +561,7 @@ function sendPhpMail($receiver_email, $receiver_name, $subject, $message,$genera
 }
 
 
-function sendSmtpMail($config, $receiver_email, $receiver_name, $subject, $message,$general)
+function sendSmtpMail($config, $receiver_email, $receiver_name, $subject, $message, $general)
 {
     $mail = new PHPMailer(true);
 
@@ -570,7 +574,7 @@ function sendSmtpMail($config, $receiver_email, $receiver_name, $subject, $messa
         $mail->Password   = $config->password;
         if ($config->enc == 'ssl') {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        }else{
+        } else {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         }
         $mail->Port       = $config->port;
@@ -590,7 +594,7 @@ function sendSmtpMail($config, $receiver_email, $receiver_name, $subject, $messa
 }
 
 
-function sendSendGridMail($config, $receiver_email, $receiver_name, $subject, $message,$general)
+function sendSendGridMail($config, $receiver_email, $receiver_name, $subject, $message, $general)
 {
     $sendgridMail = new \SendGrid\Mail\Mail();
     $sendgridMail->setFrom($general->email_from, $general->sitename);
@@ -606,7 +610,7 @@ function sendSendGridMail($config, $receiver_email, $receiver_name, $subject, $m
 }
 
 
-function sendMailjetMail($config, $receiver_email, $receiver_name, $subject, $message,$general)
+function sendMailjetMail($config, $receiver_email, $receiver_name, $subject, $message, $general)
 {
     $mj = new \Mailjet\Client($config->public_key, $config->secret_key, true, ['version' => 'v3.1']);
     $body = [
@@ -637,7 +641,8 @@ function getPaginate($paginate = 20)
     return $paginate;
 }
 
-function paginateLinks($data, $design = 'admin.partials.paginate'){
+function paginateLinks($data, $design = 'admin.partials.paginate')
+{
     return $data->appends(request()->all())->links($design);
 }
 
@@ -670,11 +675,11 @@ function imagePath()
         'size' => '800x800',
     ];
     $data['verify'] = [
-        'withdraw'=>[
-            'path'=>'assets/images/verify/withdraw'
+        'withdraw' => [
+            'path' => 'assets/images/verify/withdraw'
         ],
-        'deposit'=>[
-            'path'=>'assets/images/verify/deposit'
+        'deposit' => [
+            'path' => 'assets/images/verify/deposit'
         ]
     ];
     $data['image'] = [
@@ -708,13 +713,13 @@ function imagePath()
         'size' => '600x315'
     ];
     $data['profile'] = [
-        'user'=> [
-            'path'=>'assets/images/user/profile',
-            'size'=>'350x300'
+        'user' => [
+            'path' => 'assets/images/user/profile',
+            'size' => '350x300'
         ],
-        'admin'=> [
-            'path'=>'assets/admin/images/profile',
-            'size'=>'400x400'
+        'admin' => [
+            'path' => 'assets/admin/images/profile',
+            'size' => '400x400'
         ]
     ];
     return $data;
@@ -738,13 +743,13 @@ function showGender($val)
 {
     switch ($val) {
 
-        case $val==0:
+        case $val == 0:
             $result = 'Others';
             break;
-        case $val==1:
+        case $val == 1:
             $result = 'Male';
             break;
-        case $val==2:
+        case $val == 2:
             $result = 'Female';
             break;
         default:
@@ -757,38 +762,38 @@ function showGender($val)
 function showDayOff($val)
 {
     $result = '';
-    if(gettype($val) == 'array'){
-        foreach($val as $value) {
+    if (gettype($val) == 'array') {
+        foreach ($val as $value) {
             $result .= getDay($value);
         }
-
-    }else{
+    } else {
         $result = getDay($val);
     }
     return $result;
 }
 
-function getDay($val){
+function getDay($val)
+{
     switch ($val) {
-        case $val==6:
+        case $val == 6:
             $result = 'Saturday';
             break;
-        case $val==0:
+        case $val == 0:
             $result = 'Sunday';
             break;
-        case $val==1:
+        case $val == 1:
             $result = 'Monday';
             break;
-        case $val==2:
+        case $val == 2:
             $result = 'Tuesday';
             break;
-        case $val==3:
+        case $val == 3:
             $result = 'Wednesday';
             break;
-        case $val==4:
+        case $val == 4:
             $result = 'Thursday';
             break;
-        case $val==5:
+        case $val == 5:
             $result = 'Friday';
             break;
         default:
@@ -821,40 +826,42 @@ function sendGeneralEmail($email, $subject, $message, $receiver_name = '')
     } else if ($config->name == 'smtp') {
         sendSmtpMail($config, $email, $receiver_name, $subject, $message, $general);
     } else if ($config->name == 'sendgrid') {
-        sendSendGridMail($config, $email, $receiver_name,$subject, $message,$general);
+        sendSendGridMail($config, $email, $receiver_name, $subject, $message, $general);
     } else if ($config->name == 'mailjet') {
-        sendMailjetMail($config, $email, $receiver_name,$subject, $message, $general);
+        sendMailjetMail($config, $email, $receiver_name, $subject, $message, $general);
     }
 }
 
-function getContent($data_keys, $singleQuery = false, $limit = null,$orderById = false)
+function getContent($data_keys, $singleQuery = false, $limit = null, $orderById = false)
 {
     if ($singleQuery) {
-        $content = Frontend::where('data_keys', $data_keys)->orderBy('id','desc')->first();
+        $content = Frontend::where('data_keys', $data_keys)->orderBy('id', 'desc')->first();
     } else {
         $article = Frontend::query();
         $article->when($limit != null, function ($q) use ($limit) {
             return $q->limit($limit);
         });
-        if($orderById){
+        if ($orderById) {
             $content = $article->where('data_keys', $data_keys)->orderBy('id')->get();
-        }else{
-            $content = $article->where('data_keys', $data_keys)->orderBy('id','desc')->get();
+        } else {
+            $content = $article->where('data_keys', $data_keys)->orderBy('id', 'desc')->get();
         }
     }
     return $content;
 }
 
 
-function gatewayRedirectUrl($type = false){
+function gatewayRedirectUrl($type = false)
+{
     if ($type) {
         return 'user.ticket.history';
-    }else{
+    } else {
         return 'ticket';
     }
 }
 
-function getStoppageInfo($stoppages){
+function getStoppageInfo($stoppages)
+{
     $data = Counter::routeStoppages($stoppages);
     return $data;
 }
@@ -880,20 +887,20 @@ function stoppageCombination($numbers, $arraySize, $level = 1, $i = 0, $addThis 
 
 
         $result = array_merge($result, $temp);
-
     }
 
     return $result;
 }
 
 
-function urlPath($routeName,$routeParam=null){
-    if($routeParam == null){
+function urlPath($routeName, $routeParam = null)
+{
+    if ($routeParam == null) {
         $url = route($routeName);
     } else {
-        $url = route($routeName,$routeParam);
+        $url = route($routeName, $routeParam);
     }
     $basePath = route('home');
-    $path = str_replace($basePath,'',$url);
+    $path = str_replace($basePath, '', $url);
     return $path;
 }

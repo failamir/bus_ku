@@ -2,9 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/clear', function(){
+Route::get('/clear', function () {
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
 });
+
+Route::post('webhook', 'Gateway\PaymentController@webhook')->name('webhook');
+Route::get('success', 'UserController@successful')->name('successful');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -77,15 +81,15 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         Route::post('password', 'AdminController@passwordUpdate')->name('password.update');
 
         //Notification
-        Route::get('notifications','AdminController@notifications')->name('notifications');
-        Route::get('notification/read/{id}','AdminController@notificationRead')->name('notification.read');
-        Route::get('notifications/read-all','AdminController@readAll')->name('notifications.readAll');
+        Route::get('notifications', 'AdminController@notifications')->name('notifications');
+        Route::get('notification/read/{id}', 'AdminController@notificationRead')->name('notification.read');
+        Route::get('notifications/read-all', 'AdminController@readAll')->name('notifications.readAll');
 
         //Report Bugs
-        Route::get('request-report','AdminController@requestReport')->name('request.report');
-        Route::post('request-report','AdminController@reportSubmit');
+        Route::get('request-report', 'AdminController@requestReport')->name('request.report');
+        Route::post('request-report', 'AdminController@reportSubmit');
 
-        Route::get('system-info','AdminController@systemInfo')->name('system.info');
+        Route::get('system-info', 'AdminController@systemInfo')->name('system.info');
 
 
         // Users Manager
@@ -124,7 +128,7 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         */
 
         //manage counter
-        Route::name('manage.')->prefix('manage')->group(function(){
+        Route::name('manage.')->prefix('manage')->group(function () {
             Route::get('counter', 'CounterController@counters')->name('counter');
             Route::post('counter', 'CounterController@counterStore')->name('counter.store');
             Route::post('counter/update/{id}', 'CounterController@counterUpdate')->name('counter.update');
@@ -132,7 +136,7 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         });
 
         // Fleet & Trip manage
-        Route::name('fleet.')->prefix('manage')->group(function(){
+        Route::name('fleet.')->prefix('manage')->group(function () {
             //seat layouts
             Route::get('seat_layouts', 'ManageFleetController@seatLayouts')->name('seat.layouts');
             Route::post('seat_layouts', 'ManageFleetController@seatLayoutStore')->name('seat.layouts.store');
@@ -154,7 +158,7 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         });
 
         //manage trip
-        Route::name('trip.')->prefix('manage')->group(function(){
+        Route::name('trip.')->prefix('manage')->group(function () {
             //route
             Route::get('route', 'ManageTripController@routeList')->name('route');
             Route::get('route/create', 'ManageTripController@routeCreate')->name('route.create');
@@ -193,8 +197,8 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         });
 
 
-         // DEPOSIT SYSTEM
-         Route::name('deposit.')->prefix('payment')->group(function(){
+        // DEPOSIT SYSTEM
+        Route::name('deposit.')->prefix('payment')->group(function () {
             Route::get('pending', 'DepositController@pending')->name('pending');
             Route::get('successful', 'DepositController@successful')->name('successful');
             Route::get('rejected', 'DepositController@rejected')->name('rejected');
@@ -206,12 +210,11 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
             Route::get('via/{method}/{type?}', 'DepositController@depositViaMethod')->name('method');
             Route::get('/{scope}/search', 'DepositController@search')->name('search');
             Route::get('date-search/{scope}', 'DepositController@dateSearch')->name('dateSearch');
-
         });
 
 
         // Deposit Gateway
-        Route::name('gateway.')->prefix('gateway')->group(function(){
+        Route::name('gateway.')->prefix('gateway')->group(function () {
             // Automatic Gateway
             Route::get('automatic', 'GatewayController@index')->name('automatic.index');
             Route::get('automatic/edit/{alias}', 'GatewayController@edit')->name('automatic.edit');
@@ -232,7 +235,7 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         });
 
         // ticket booking history
-        Route::name('vehicle.ticket.')->prefix('ticket')->group(function(){
+        Route::name('vehicle.ticket.')->prefix('ticket')->group(function () {
             Route::get('booked', 'VehicleTicketController@booked')->name('booked');
             Route::get('pending', 'VehicleTicketController@pending')->name('pending');
             Route::get('rejected', 'VehicleTicketController@rejected')->name('rejected');
@@ -283,13 +286,13 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         Route::post('setting/logo-icon', 'GeneralSettingController@logoIconUpdate')->name('setting.logo.icon');
 
         //Custom CSS
-        Route::get('custom-css','GeneralSettingController@customCss')->name('setting.custom.css');
-        Route::post('custom-css','GeneralSettingController@customCssSubmit');
+        Route::get('custom-css', 'GeneralSettingController@customCss')->name('setting.custom.css');
+        Route::post('custom-css', 'GeneralSettingController@customCssSubmit');
 
 
         //Cookie
-        Route::get('cookie','GeneralSettingController@cookie')->name('setting.cookie');
-        Route::post('cookie','GeneralSettingController@cookieSubmit');
+        Route::get('cookie', 'GeneralSettingController@cookie')->name('setting.cookie');
+        Route::post('cookie', 'GeneralSettingController@cookieSubmit');
 
 
         // Plugin
@@ -314,7 +317,7 @@ Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
         // SMS Setting
         Route::get('sms-template/global', 'SmsTemplateController@smsTemplate')->name('sms.template.global');
         Route::post('sms-template/global', 'SmsTemplateController@smsTemplateUpdate')->name('sms.template.global');
-        Route::get('sms-template/setting','SmsTemplateController@smsSetting')->name('sms.templates.setting');
+        Route::get('sms-template/setting', 'SmsTemplateController@smsSetting')->name('sms.templates.setting');
         Route::post('sms-template/setting', 'SmsTemplateController@smsSettingUpdate')->name('sms.template.setting');
         Route::get('sms-template/index', 'SmsTemplateController@index')->name('sms.template.index');
         Route::get('sms-template/edit/{id}', 'SmsTemplateController@edit')->name('sms.template.edit');
@@ -420,7 +423,7 @@ Route::get('cookie/details', 'SiteController@cookieDetails')->name('cookie.detai
 
 Route::get('placeholder-image/{size}', 'SiteController@placeholderImage')->name('placeholder.image');
 
-Route::get('ticket/search','SiteController@ticketSearch')->name('search');
+Route::get('ticket/search', 'SiteController@ticketSearch')->name('search');
 
 
 Route::get('/{slug}', 'SiteController@pages')->name('pages');
