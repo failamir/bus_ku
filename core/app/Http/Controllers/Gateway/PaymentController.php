@@ -135,7 +135,7 @@ class PaymentController extends Controller
         $pageTitle = 'Payment Confirm';
 
         // Configuration::setApiKey('xnd_development_lhenR2EDSNWhKwhTIzw6kmEbZTcTlskQ5eg70mYY0p2NfcvzliuwUBd8O');
-        Configuration::setXenditKey('xnd_development_h6dHQg7Gy1OIHirYumyL4gBjt0xa36jgxYN20FK22ur5GQCmHsokPXZuBcId');
+        Configuration::setXenditKey(env('XENDIT_KEY'));
         $apiInstance = new InvoiceApi();
 
         $create_invoice_request = new \Xendit\Invoice\CreateInvoiceRequest([
@@ -168,7 +168,7 @@ class PaymentController extends Controller
         // Ini akan menjadi Token Verifikasi Callback Anda yang dapat Anda peroleh dari dasbor.
         // Pastikan untuk menjaga kerahasiaan token ini dan tidak mengungkapkannya kepada siapa pun.
         // Token ini akan digunakan untuk melakukan verfikasi pesan callback bahwa pengirim callback tersebut adalah Xendit
-        $xenditXCallbackToken = 'mFSgzlG7Mf8JB15iqXqSZd7lgEiqg8Dl654z0TSq2zdMRLuk';
+        $xenditXCallbackToken = env('XENDIT_TOKEN');
         // var_dump($xenditXCallbackToken);
         // die;
         // Bagian ini untuk mendapatkan Token callback dari permintaan header, 
