@@ -1,5 +1,5 @@
 @php
-$content = getContent('contact.content', true);
+    $content = getContent('contact.content', true);
 @endphp
 <!-- Header Section Starts Here -->
 <div class="header-top">
@@ -22,8 +22,9 @@ $content = getContent('contact.content', true);
             <div class="right-content">
                 <div>
                     <select class="langSel form--control">
-                        @foreach($language as $item)
-                        <option value="{{$item->code}}" @if(session('lang')==$item->code) selected @endif>{{ __($item->name) }}</option>
+                        @foreach ($language as $item)
+                            <option value="{{ $item->code }}" @if (session('lang') == $item->code) selected @endif>
+                                {{ __($item->name) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -36,7 +37,7 @@ $content = getContent('contact.content', true);
         <div class="header-bottom-area">
             <div class="logo">
                 <a href="{{ route('home') }}">
-                    <img src="{{ getImage(imagePath()['logoIcon']['path'].'/logo.png') }}" alt="@lang('Logo')">
+                    <img src="{{ getImage(imagePath()['logoIcon']['path'] . '/logo.png') }}" alt="@lang('Logo')">
                 </a>
             </div> <!-- Logo End -->
             <ul class="menu">
@@ -47,10 +48,10 @@ $content = getContent('contact.content', true);
                     <a href="javascript::void()">@lang('Booking')</a>
                     <ul class="sub-menu">
                         <li>
-                            <a href="{{ route('ticket') }}">@lang('Buy Ticket')</a>
+                            <a href="{{ route('ticket') }}">@lang('Beli Tiket')</a>
                         </li>
                         <li>
-                            <a href="{{ route('user.ticket.history') }}">@lang('Booking History')</a>
+                            <a href="{{ route('user.ticket.history') }}">@lang('Riwayat Booking')</a>
                         </li>
                     </ul>
                 </li>
@@ -58,10 +59,10 @@ $content = getContent('contact.content', true);
                     <a href="javascript::void()">@lang('Support Ticket')</a>
                     <ul class="sub-menu">
                         <li>
-                            <a href="{{route('ticket.open')}}">@lang('Create New')</a>
+                            <a href="{{ route('ticket.open') }}">@lang('Create New')</a>
                         </li>
                         <li>
-                            <a href="{{route('support_ticket')}}">@lang('Tickets')</a>
+                            <a href="{{ route('support_ticket') }}">@lang('Tickets')</a>
                         </li>
                     </ul>
                 </li>
@@ -81,7 +82,7 @@ $content = getContent('contact.content', true);
                 </li>
             </ul>
             <div class="d-flex flex-wrap algin-items-center">
-                <a href="{{ route('ticket') }}" class="cmn--btn btn--sm">@lang('Buy Tickets')</a>
+                <a href="{{ route('ticket') }}" class="cmn--btn btn--sm">@lang('Beli Tiket')</a>
                 <div class="header-trigger-wrapper d-flex d-lg-none ms-4">
                     <div class="header-trigger d-block d-lg-none">
                         <span></span>
@@ -97,12 +98,12 @@ $content = getContent('contact.content', true);
 <!-- Header Section Ends Here -->
 
 @push('script')
-<script>
-    $(document).ready(function() {
-        "use strict";
-        $(".langSel").on("change", function() {
-            window.location.href = "{{route('home')}}/change/" + $(this).val();
+    <script>
+        $(document).ready(function() {
+            "use strict";
+            $(".langSel").on("change", function() {
+                window.location.href = "{{ route('home') }}/change/" + $(this).val();
+            });
         });
-    });
-</script>
+    </script>
 @endpush
