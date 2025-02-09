@@ -1,13 +1,13 @@
 @extends('admin.layouts.app')
 @section('panel')
     <div class="row mb-none-30">
-        <div class="col-md-12 mb-30">
+        {{-- <div class="col-md-12 mb-30">
             <div class="card bl--5-primary">
                 <div class="card-body">
                     <p class="font-weight-bold text--info">@lang('If the logo and favicon are not changed after you update from this page, please clear the cache from your browser. As we keep the filename the same after the update, it may show the old image for the cache. usually, it works after clear the cache but if you still see the old logo or favicon, it may be caused by server level or network level caching. Please clear them too.')</p>
                 </div>
             </div>
-        </div>
+        </div> --}}
         <div class="col-md-12 mb-30">
             <div class="card">
                 <div class="card-body">
@@ -19,12 +19,15 @@
                                 <div class="image-upload">
                                     <div class="thumb">
                                         <div class="avatar-preview">
-                                            <div class="profilePicPreview logoPicPrev logoPrev" style="background-image: url({{ getImage(imagePath()['logoIcon']['path'].'/logo.png', '?'.time()) }})">
-                                                <button type="button" class="remove-image"><i class="fa fa-times"></i></button>
+                                            <div class="profilePicPreview logoPicPrev logoPrev"
+                                                style="background-image: url({{ getImage(imagePath()['logoIcon']['path'] . '/logo.png', '?' . time()) }})">
+                                                <button type="button" class="remove-image"><i
+                                                        class="fa fa-times"></i></button>
                                             </div>
                                         </div>
                                         <div class="avatar-edit">
-                                            <input type="file" class="profilePicUpload" id="profilePicUpload" accept=".png, .jpg, .jpeg" name="logo">
+                                            <input type="file" class="profilePicUpload" id="profilePicUpload"
+                                                accept=".png, .jpg, .jpeg" name="logo">
                                             <label for="profilePicUpload" class="bg--primary">@lang('Select Logo') </label>
                                         </div>
                                     </div>
@@ -36,12 +39,15 @@
                                 <div class="image-upload">
                                     <div class="thumb">
                                         <div class="avatar-preview">
-                                            <div class="profilePicPreview logoPicPrev logoPrev bg--dark" style="background-image: url({{ getImage(imagePath()['logoIcon']['path'].'/logo_2.png', '?'.time()) }})">
-                                                <button type="button" class="remove-image"><i class="fa fa-times"></i></button>
+                                            <div class="profilePicPreview logoPicPrev logoPrev bg--dark"
+                                                style="background-image: url({{ getImage(imagePath()['logoIcon']['path'] . '/logo_2.png', '?' . time()) }})">
+                                                <button type="button" class="remove-image"><i
+                                                        class="fa fa-times"></i></button>
                                             </div>
                                         </div>
                                         <div class="avatar-edit">
-                                            <input type="file" class="profilePicUpload" id="profilePicUpload1" accept=".png, .jpg, .jpeg" name="logo_2">
+                                            <input type="file" class="profilePicUpload" id="profilePicUpload1"
+                                                accept=".png, .jpg, .jpeg" name="logo_2">
                                             <label for="profilePicUpload1" class="bg--primary">@lang('Select Logo') </label>
                                         </div>
                                     </div>
@@ -54,14 +60,17 @@
                                         <div class="avatar-preview">
                                             <div class="row">
                                                 <div class="col-sm-12">
-                                                    <div class="profilePicPreview logoPicPrev" style="background-image: url({{ getImage(imagePath()['logoIcon']['path'] .'/favicon.png', '?'.time()) }})">
-                                                        <button type="button" class="remove-image"><i class="fa fa-times"></i></button>
+                                                    <div class="profilePicPreview logoPicPrev"
+                                                        style="background-image: url({{ getImage(imagePath()['logoIcon']['path'] . '/favicon.png', '?' . time()) }})">
+                                                        <button type="button" class="remove-image"><i
+                                                                class="fa fa-times"></i></button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="avatar-edit">
-                                            <input type="file" class="profilePicUpload" id="profilePicUpload2" accept=".png" name="favicon">
+                                            <input type="file" class="profilePicUpload" id="profilePicUpload2"
+                                                accept=".png" name="favicon">
                                             <label for="profilePicUpload2" class="bg--primary">@lang('Select Favicon')</label>
                                         </div>
                                     </div>
