@@ -53,7 +53,7 @@
                 <li class="sidebar-menu-item sidebar-dropdown">
                     <a href="javascript:void(0)" class="{{ menuActive('admin.deposit*', 3) }}">
                         <i class="menu-icon las la-credit-card"></i>
-                        <span class="menu-title">@lang('Payment History')</span>
+                        <span class="menu-title">@lang('Riwayat Pembayaran')</span>
                         @if (0 < $pending_payment_count)
                             <span class="menu-badge pill bg--primary ml-auto">
                                 <i class="fa fa-exclamation"></i>
@@ -97,7 +97,7 @@
                 <li class="sidebar-menu-item sidebar-dropdown">
                     <a href="javascript:void(0)" class="{{ menuActive('admin.vehicle.ticket*', 3) }}">
                         <i class="menu-icon las la-credit-card"></i>
-                        <span class="menu-title">@lang('Booking History')</span>
+                        <span class="menu-title">@lang('Riwayat Booking')</span>
                         @if (0 < $pending_vehicle_ticket)
                             <span class="menu-badge pill bg--primary ml-auto">
                                 <i class="fa fa-exclamation"></i>
@@ -172,7 +172,7 @@
                     <a href="{{ route('admin.manage.counter') }}" class="nav-link"
                         data-default-url="{{ route('admin.manage.counter') }}">
                         <i class="menu-icon las la-warehouse"></i>
-                        <span class="menu-title">@lang('Station') </span>
+                        <span class="menu-title">@lang('Terminal') </span>
                     </a>
                 </li>
 
@@ -213,7 +213,7 @@
                 <li class="sidebar-menu-item sidebar-dropdown">
                     <a href="javascript:void(0)" class="{{ menuActive('admin.trip*', 3) }}">
                         <i class="menu-icon las la-bus"></i>
-                        <span class="menu-title">@lang('Manage Trips')</span>
+                        <span class="menu-title">@lang('Manage Rute')</span>
                     </a>
                     <div class="sidebar-submenu {{ menuActive('admin.trip*', 2) }}">
                         <ul>
@@ -263,7 +263,7 @@
                 <li class="sidebar-menu-item {{ menuActive('admin.setting.index') }}">
                     <a href="{{ route('admin.setting.index') }}" class="nav-link">
                         <i class="menu-icon las la-life-ring"></i>
-                        <span class="menu-title">@lang('General Setting')</span>
+                        <span class="menu-title">@lang('Setting Umum')</span>
                     </a>
                 </li>
 
